@@ -146,12 +146,12 @@ class Star(pygame.sprite.Sprite):
         if self.rect.right < 0:
             self.kill()
 
-
+            
 def text_objects(text, font):
     textSurface = font.render(text, True, white)
     return textSurface, textSurface.get_rect()
 
-
+# Function for welcome screen
 def game_intro():
     while intro:
         for event in pygame.event.get():
@@ -165,27 +165,25 @@ def game_intro():
         textSurf, textRect = text_objects("Worst Space Game Ever", largeText)
         textRect.center = ((SCREEN_WIDTH/2), (SCREEN_HEIGHT/2))
         screen.blit(textSurf, textRect)
-
+        
+        # Mouse position and click function
         mouse = pygame.mouse.get_pos()
         click = pygame.mouse.get_pressed()
-
-        smallText = pygame.font.Font("freesansbold.ttf", 20)
-        textSurf, textRect = text_objects("Play", smallText)
-        textRect.center = ((150+(100/2)), (450+(50/2)))
-        screen.blit(textSurf, textRect)
-
+        
+        # GO Button
         if 150+100 > mouse[0] > 150 and 450+50 > mouse[1] > 450:
             pygame.draw.rect(screen, lightgrey, (150, 450, 100, 50))
             if click[0] == 1:
                 return
         else:
             pygame.draw.rect(screen, grey, (150, 450, 100, 50))
-
+        
         smallText = pygame.font.Font("freesansbold.ttf", 20)
         textSurf, textRect = text_objects("GO!", smallText)
         textRect.center = ( (150+(100/2)), (450+(50/2)) )
         screen.blit(textSurf, textRect)
-
+        
+        # QUIT Button
         if 550+100 > mouse[0] > 550 and 450+50 > mouse[1] > 450:
             pygame.draw.rect(screen,lightgrey, (550, 450, 100, 50))
             if click[0] == 1:
@@ -200,7 +198,7 @@ def game_intro():
         screen.blit(textSurf, textRect)
 
         pygame.display.update()
-        clock.tick(15)
+        clock.tick(30)
 
 
 # Initialize pygame
@@ -266,19 +264,21 @@ while running:
             enemies.add(new_enemy)
             all_sprites.add(new_enemy)
 
-        # Add a new planet?
+        # Add a new planet1?
         elif event.type == ADDPLANET1:
             # Create the new planet1 and add it to sprite groups
             new_planet1 = Planet1()
             planets1.add(new_planet1)
             all_sprites.add(new_planet1)
-
+                
+        # Add a new planet2?
         elif event.type == ADDPLANET2:
             # Create the new planet2 and add it to sprite groups
             new_planet2 = Planet2()
             planets2.add(new_planet2)
             all_sprites.add(new_planet2)
-
+              
+        # Add a new star?
         elif event.type == ADDSTAR:
             # Create the new star and add it to sprite groups
             new_star = Star()
@@ -324,4 +324,4 @@ while running:
     pygame.display.flip()
 
     # Ensure program maintains a rate of 30 frames per second
-    clock.tick(60)
+    clock.tick(30)
