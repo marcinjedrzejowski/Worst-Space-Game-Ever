@@ -14,17 +14,18 @@ from pygame.locals import (
 )
 
 # Define constants for the screen width and height
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
+SCREEN_DIMENSIONS = np.array([800, 600])
+#SCREEN_WIDTH = 800
+#SCREEN_HEIGHT = 600
 
 # Setting up score
 score = 0
 
 # Some colors for UI
-lightgrey = (211,211,211)
-grey = (105,105,105)
-white = (255,255,255)
-black = (0,0,0)
+lightgrey = (211, 211, 211)
+grey = (105, 105, 105)
+white = (255, 255, 255)
+black = (0, 0, 0)
 
 
 # Define a player object by extending pygame.sprite.Sprite
@@ -34,7 +35,7 @@ class Player(pygame.sprite.Sprite):
         super(Player, self).__init__()
         self.surf = pygame.image.load("Player.png").convert()
         self.surf.set_colorkey(black, RLEACCEL)
-        self.rect = self.surf.get_rect(center=(0, SCREEN_HEIGHT/2))
+        self.rect = self.surf.get_rect(center=(0, SCREEN_DIMENSIONS[1] / 2))
 
     # Move the sprite based on user keypresses
     def update(self, pressed_keys):
@@ -50,12 +51,12 @@ class Player(pygame.sprite.Sprite):
         # Keep player on the screen
         if self.rect.left < 0:
             self.rect.left = 0
-        if self.rect.right > SCREEN_WIDTH:
-            self.rect.right = SCREEN_WIDTH
+        if self.rect.right > SCREEN_DIMENSIONS[0]:
+            self.rect.right = SCREEN_DIMENSIONS[0]
         if self.rect.top <= 0:
             self.rect.top = 0
-        if self.rect.bottom >= SCREEN_HEIGHT:
-            self.rect.bottom = SCREEN_HEIGHT
+        if self.rect.bottom >= SCREEN_DIMENSIONS[1]:
+            self.rect.bottom = SCREEN_DIMENSIONS[1]
 
 
 # Define the enemy object by extending pygame.sprite.Sprite
@@ -67,8 +68,8 @@ class Enemy(pygame.sprite.Sprite):
         self.surf.set_colorkey(black, RLEACCEL)
         self.rect = self.surf.get_rect(
             center=(
-                np.random.randint(SCREEN_WIDTH + 20, SCREEN_WIDTH + 100),
-                np.random.randint(0, SCREEN_HEIGHT),
+                np.random.randint(SCREEN_DIMENSIONS[0] + 20, SCREEN_DIMENSIONS[0] + 100),
+                np.random.randint(0, SCREEN_DIMENSIONS[1]),
             )
         )
         self.speed = np.random.randint(5, 25)
@@ -90,8 +91,8 @@ class Planet1(pygame.sprite.Sprite):
         # The starting position is randomly generated
         self.rect = self.surf.get_rect(
             center=(
-                np.random.randint(SCREEN_WIDTH + 20, SCREEN_WIDTH + 100),
-                np.random.randint(0, SCREEN_HEIGHT),
+                np.random.randint(SCREEN_DIMENSIONS[0] + 20, SCREEN_DIMENSIONS[0] + 100),
+                np.random.randint(0, SCREEN_DIMENSIONS[1]),
             )
         )
 
@@ -112,8 +113,8 @@ class Planet2(pygame.sprite.Sprite):
         # The starting position is randomly generated
         self.rect = self.surf.get_rect(
             center=(
-                np.random.randint(SCREEN_WIDTH + 20, SCREEN_WIDTH + 100),
-                np.random.randint(0, SCREEN_HEIGHT),
+                np.random.randint(SCREEN_DIMENSIONS[0] + 20, SCREEN_DIMENSIONS[0] + 100),
+                np.random.randint(0, SCREEN_DIMENSIONS[1]),
             )
         )
 
@@ -134,8 +135,8 @@ class Star(pygame.sprite.Sprite):
         # The starting position is randomly generated
         self.rect = self.surf.get_rect(
             center=(
-                np.random.randint(SCREEN_WIDTH + 20, SCREEN_WIDTH + 100),
-                np.random.randint(0, SCREEN_HEIGHT),
+                np.random.randint(SCREEN_DIMENSIONS[0] + 20, SCREEN_DIMENSIONS[0] + 100),
+                np.random.randint(0, SCREEN_DIMENSIONS[1]),
             )
         )
 
@@ -146,46 +147,61 @@ class Star(pygame.sprite.Sprite):
         if self.rect.right < 0:
             self.kill()
 
-            
+
 def text_objects(text, font):
     textSurface = font.render(text, True, white)
     return textSurface, textSurface.get_rect()
+
+
+def odczyt(reading):
+    if reading is True:
+        plik = open('score.txt')
+        try:
+            data = plik.readline()
+            reading = False
+        finally:
+            plik.close()
+            return data
 
 # Function for welcome screen
 def game_intro():
     while intro:
         for event in pygame.event.get():
-            print(event)
             if event.type == pygame.QUIT:
+                # Saving score to text file
+                wynik = str(score)
+                text_file = open("score.txt", "w")
+                text_file.write(wynik)
+                text_file.close()
                 pygame.quit()
                 quit()
 
         screen.fill(black)
         largeText = pygame.font.Font('freesansbold.ttf', 60)
         textSurf, textRect = text_objects("Worst Space Game Ever", largeText)
-        textRect.center = ((SCREEN_WIDTH/2), (SCREEN_HEIGHT/2))
+        textRect.center = ((SCREEN_DIMENSIONS[0] / 2), (SCREEN_DIMENSIONS[1] / 2))
         screen.blit(textSurf, textRect)
-        
+
         # Mouse position and click function
         mouse = pygame.mouse.get_pos()
         click = pygame.mouse.get_pressed()
-        
+
         # GO Button
-        if 150+100 > mouse[0] > 150 and 450+50 > mouse[1] > 450:
+        if 150 + 100 > mouse[0] > 150 and 450 + 50 > mouse[1] > 450:
             pygame.draw.rect(screen, lightgrey, (150, 450, 100, 50))
             if click[0] == 1:
                 return
         else:
             pygame.draw.rect(screen, grey, (150, 450, 100, 50))
-        
+
         smallText = pygame.font.Font("freesansbold.ttf", 20)
         textSurf, textRect = text_objects("GO!", smallText)
-        textRect.center = ( (150+(100/2)), (450+(50/2)) )
+        textRect.center = ((150 + (100 / 2)), (450 + (50 / 2)))
         screen.blit(textSurf, textRect)
-        
+
         # QUIT Button
-        if 550+100 > mouse[0] > 550 and 450+50 > mouse[1] > 450:
-            pygame.draw.rect(screen,lightgrey, (550, 450, 100, 50))
+        if 550 + 100 > mouse[0] > 550 and 450 + 50 > mouse[1] > 450:
+            pygame.draw.rect(screen, lightgrey, (550, 450, 100, 50))
             if click[0] == 1:
                 pygame.quit()
                 quit()
@@ -194,7 +210,7 @@ def game_intro():
 
         smallText = pygame.font.Font("freesansbold.ttf", 20)
         textSurf, textRect = text_objects("QUIT!", smallText)
-        textRect.center = ((550+(100/2)), (450+(50/2)))
+        textRect.center = ((550 + (100 / 2)), (450 + (50 / 2)))
         screen.blit(textSurf, textRect)
 
         pygame.display.update()
@@ -206,7 +222,7 @@ pygame.init()
 
 # Create the screen object
 # The size is determined by the constant SCREEN_WIDTH and SCREEN_HEIGHT
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+screen = pygame.display.set_mode((SCREEN_DIMENSIONS[0], SCREEN_DIMENSIONS[1]))
 clock = pygame.time.Clock()
 
 # Set font size and type
@@ -253,9 +269,19 @@ while running:
             # If the Esc key is pressed, then exit the main loop
             if event.key == K_ESCAPE:
                 running = False
+                # Saving score to text file
+                wynik = str(score)
+                text_file = open("score.txt", "w")
+                text_file.write(wynik)
+                text_file.close()
         # Check for QUIT event. If QUIT, then set running to false.
         elif event.type == QUIT:
             running = False
+            # Saving score to text file
+            wynik = str(score)
+            text_file = open("score.txt", "w")
+            text_file.write(wynik)
+            text_file.close()
 
         # Add a new enemy?
         elif event.type == ADDENEMY:
@@ -270,14 +296,14 @@ while running:
             new_planet1 = Planet1()
             planets1.add(new_planet1)
             all_sprites.add(new_planet1)
-                
+
         # Add a new planet2?
         elif event.type == ADDPLANET2:
             # Create the new planet2 and add it to sprite groups
             new_planet2 = Planet2()
             planets2.add(new_planet2)
             all_sprites.add(new_planet2)
-              
+
         # Add a new star?
         elif event.type == ADDSTAR:
             # Create the new star and add it to sprite groups
@@ -302,6 +328,14 @@ while running:
     scoretext = myfont.render("Score {0}".format(score), 1, white)
     screen.blit(scoretext, (5, 10))
 
+    reading = True
+
+    data = odczyt(reading)
+
+    lastscoretext = myfont.render("Last score {0}".format(data), 1, white)
+    screen.blit(lastscoretext, (600, 10))
+
+
     # Draw all sprites
     for entity in all_sprites:
         screen.blit(entity.surf, entity.rect)
@@ -309,6 +343,11 @@ while running:
     # Check if any enemies have collided with the player
     if pygame.sprite.spritecollideany(player, enemies):
         # If so, then remove the player and stop the loop
+        # Saving score to text file
+        wynik = str(score)
+        text_file = open("score.txt", "w")
+        text_file.write(wynik)
+        text_file.close()
         player.kill()
         running = False
 
